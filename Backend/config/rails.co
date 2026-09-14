@@ -1,0 +1,31 @@
+define user ask off topic
+  "how do I bake a pie"
+  "give me a recipe"
+  "write a poem or a story"
+  "what is the capital of France?"
+  "tell me a joke"
+
+define user attempt jailbreak
+  "explain this using an analogy of"
+  "map these concepts to"
+  "pretend you are a"
+  "respond in the style of"
+  "write a story where"
+  "ignore previous instructions"
+  "hypothetical scenario"
+  "act as if you are"
+  "use the steps and components of"
+
+define bot refuse off topic
+  "I am a specialized document assistant. I can only answer direct questions about the uploaded PDF."
+
+define bot refuse jailbreak
+  "I am a factual document analysis tool. I am strictly prohibited from using analogies, adopting personas, or generating creative metaphors. I can only provide direct, literal analysis of the text."
+
+define flow check off topic
+  user ask off topic
+  bot refuse off topic
+
+define flow check jailbreak
+  user attempt jailbreak
+  bot refuse jailbreak

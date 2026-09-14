@@ -1,0 +1,16 @@
+langchain
+langchain_core
+langchain-groq
+dotenv
+flask
+pypdf
+nemoguardrails
+nest-asyncio
+langchain-openai
+qdrant-client 
+fastembed 
+langchain-qdrant 
+langchain-community
+langchain-text-splitters
+flashrank
+Flask-SQLAlchemy

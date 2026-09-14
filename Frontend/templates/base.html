@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PDF Summarizer{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        body { min-height: 100vh; overflow-x: hidden; background-color: #f8f9fa; }
+        .sidebar { 
+            width: 280px; 
+            border-right: 1px solid #dee2e6; 
+            background-color: #ffffff; 
+            transition: margin-left 0.3s ease;
+            flex-shrink: 0;
+        }
+        .sidebar.collapsed { 
+            margin-left: -280px; 
+        }
+        .main-content { flex: 1; background-color: #ffffff; min-width: 0; }
+        .history-item { cursor: pointer; transition: background-color 0.2s; }
+        .history-item:hover { background-color: #f1f3f5; }
+    </style>
+</head>
+<body class="d-flex flex-column">
+
+    <div style="background-color: aliceblue;" class="text-center py-4 border-bottom position-relative">
+        <button id="sidebarToggle" class="btn btn-outline-primary position-absolute" style="left: 20px; top: 50%; transform: translateY(-50%);">
+            &#9776;
+        </button>
+        <h1 class="display-6 fw-bold text-primary mb-1">PDF Summarizer</h1>
+        <p class="lead text-muted mb-0">Chat with your documents</p>
+    </div>
+
+    <div class="d-flex flex-grow-1">
+        <div id="sidebar" class="sidebar d-flex flex-column collapsed">
+            <div class="p-3 border-bottom">
+                <a href="/" class="btn btn-primary w-100 font-weight-bold">+ New PDF Upload</a>
+            </div>
+            <div class="p-2 flex-grow-1 overflow-auto">
+                <h6 class="text-muted ml-2 mt-2 mb-3">Recent Chats</h6>
+                <ul id="sidebar-history-list" class="list-group list-group-flush">
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content d-flex flex-column">
+            <div class="container-fluid px-4 py-3 flex-grow-1 d-flex flex-column">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const historyList = document.getElementById("sidebar-history-list");
+
+            try {
+                const res = await fetch("/api/history");
+                const docs = await res.json();
+                
+                historyList.innerHTML = "";
+                
+                if (docs.length === 0) {
+                    historyList.innerHTML = '<li class="list-group-item text-muted small border-0 text-center">No past chats yet.</li>';
+                    return;
+                }
+
+                docs.forEach(doc => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item border-0 rounded history-item mb-1 p-2 d-flex justify-content-between align-items-center";
+                    
+                    li.innerHTML = `
+                        <div class="text-truncate" style="cursor: pointer; width: 85%;">
+                            <div class="font-weight-bold text-truncate" style="font-size: 0.95rem;">${doc.filename}</div>
+                            <small class="text-muted">${doc.date}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger border-0 delete-btn" style="padding: 0 6px; font-size: 1.1rem; line-height: 1;" title="Delete chat">&times;</button>
+                    `;
+                    
+                    const textContainer = li.querySelector('div');
+                    textContainer.addEventListener("click", async () => {
+                        if (window.innerWidth < 768) {
+                            document.getElementById('sidebar').classList.add('collapsed');
+                        }
+
+                        const switchRes = await fetch(`/api/load_chat/${doc.id}`);
+                        const data = await switchRes.json();
+                        
+                        const chatBox = document.getElementById("chat-box");
+                        
+                        if (!chatBox) {
+                            window.location.href = "/output";
+                        } else {
+                            chatBox.innerHTML = "";
+                            if (data.chat.length === 0) {
+                                chatBox.innerHTML = '<div class="text-center text-muted mt-3">No messages yet.</div>';
+                            } else {
+                                data.chat.forEach(msg => window.appendMessage(msg.sender, msg.text));
+                            }
+                        }
+                    });
+
+                    const deleteBtn = li.querySelector('.delete-btn');
+                    deleteBtn.addEventListener("click", async (e) => {
+                        e.stopPropagation(); 
+                        
+                        if (confirm("Delete this document and its chat history?")) {
+                            try {
+                                const delRes = await fetch(`/api/delete_chat/${doc.id}`, { method: "DELETE" });
+                                if (delRes.ok) {
+                                    li.remove(); 
+                                    if (document.getElementById("chat-box")) {
+                                        window.location.reload(); 
+                                    }
+                                }
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        }
+                    });
+
+                    historyList.appendChild(li);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Chat with PDF{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+    .markdown-content p { margin-bottom: 10px; }
+    .markdown-content pre {
+        background-color: #2d2d2d;
+        color: #f8f8f2;
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    .markdown-content code {
+        background-color: #e9ecef;
+        padding: 2px 4px;
+        border-radius: 4px;
+        color: #d63384;
+    }
+    .markdown-content pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+    }
+    .markdown-content table {
+        width: 100%;
+        margin-bottom: 1rem;
+        border-collapse: collapse;
+    }
+    .markdown-content table, .markdown-content th, .markdown-content td {
+        border: 1px solid #dee2e6;
+    }
+    .markdown-content th, .markdown-content td {
+        padding: 8px;
+    }
+    .markdown-content th {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<!-- This relative wrapper fills the remaining space -->
+<div class="flex-grow-1 position-relative w-100 m-0" style="min-height: 500px;">
+    
+    <!-- This absolute row locks into the wrapper, forcing the flexbox to calculate a strict height -->
+    <div class="row position-absolute w-100 h-100 m-0" style="top: 0; left: 0;">
+        
+        <div class="col-md-5 d-flex flex-column h-100 p-0 bg-white border-right">
+            <!-- Header -->
+            <div class="bg-light d-flex justify-content-between align-items-center py-2 px-3 border-bottom flex-shrink-0">
+                <h6 class="mb-0 text-primary font-weight-bold">Ask Questions / Generate Code</h6>
+                <a href="{{ url_for('home') }}" class="btn btn-sm btn-outline-secondary">Upload New File</a>
+            </div>
+
+            <!-- Chat Box -->
+            <div class="flex-grow-1 p-3" id="chat-box" style="overflow-y: auto; background-color: #f8f9fa;">
+                <div class="alert alert-info border-0 mb-3" style="font-size: 0.9rem;">
+                    Your PDF is loaded. Ask any question, or ask the AI to generate code based on the document.
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="p-3 bg-white border-top flex-shrink-0">
+                <form id="chat-form" class="d-flex" data-chat-url="{{ url_for('chat') }}">
+                    <input type="text" id="user-input" class="form-control mr-2" placeholder="e.g. Write Python code implementing the logic..." required autocomplete="off">
+                    <button type="submit" id="send-btn" class="btn btn-primary px-4">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-7 h-100 p-0 bg-light d-flex flex-column">
+            <iframe id="pdf-viewer" src="/api/pdf/active" width="100%" height="100%" style="border: none;">
+                <p>Your browser does not support PDFs. <a href="/api/pdf/active">Download the PDF</a>.</p>
+            </iframe>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const historyList = document.getElementById("sidebar-history-list");
+        if (historyList) {
+            historyList.addEventListener("click", (e) => {
+                setTimeout(() => {
+                    const pdfViewer = document.getElementById("pdf-viewer");
+                    if (pdfViewer) {
+                        pdfViewer.src = "/api/pdf/active?" + new Date().getTime(); 
+                    }
+                }, 500);
+            });
+        }
+    });
+</script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

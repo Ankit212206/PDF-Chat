@@ -1,0 +1,34 @@
+[project]
+name = "aws-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Ankit", email = "ankit.24bce8654@vitapstudent.ac.in" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastembed>=0.8.0",
+    "flashrank>=0.2.10",
+    "flask>=3.1.3",
+    "flask-sqlalchemy>=3.1.1",
+    "langchain>=1.4.0",
+    "langchain-community>=0.4.2",
+    "langchain-core>=1.6.3",
+    "langchain-groq>=1.1.3",
+    "langchain-openai>=1.6.2",
+    "langchain-qdrant>=1.1.0",
+    "langchain-text-splitters>=1.1.2",
+    "nemoguardrails>=0.24.0",
+    "nest-asyncio>=1.6.0",
+    "pypdf>=6.18.1",
+    "qdrant-client>=1.19.0",
+]
+
+[project.scripts]
+aws-project = "aws_project:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"

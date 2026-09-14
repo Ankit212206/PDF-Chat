@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-5">
+                        <h4 class="card-title mb-4 text-center">Upload a File</h4>
+                        
+                        <!-- Added enctype for file uploads -->
+                        <form action="{{ url_for('home') }}" method="post" enctype="multipart/form-data">
+                            
+                            <!-- Replaced form-group with mb-4 for better spacing -->
+                            <div class="mb-4">
+                                <label for="exampleFormControlFile1" class="form-label fw-bold text-muted mb-2">
+                                    Choose file to upload
+                                </label>
+                                <!-- Bootstrap 5 uses form-control for file inputs, making them look much better -->
+                                <input type="file" class="form-control form-control-lg" name="wsw" id="exampleFormControlFile1" required>
+                            </div>
+                            
+                            <!-- Full width button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    Submit File
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
